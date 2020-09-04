@@ -18,6 +18,8 @@ use atk4\dsql\Query;
  * Data model class.
  *
  * @property Field[]|Reference[] $elements
+ * @property mixed $id Contains ID of the current record. If the value is null then the record
+ *                     is considered to be new.
  */
 class Model implements \IteratorAggregate
 {
@@ -204,14 +206,6 @@ class Model implements \IteratorAggregate
      * @var bool
      */
     public $read_only = false;
-
-    /**
-     * Contains ID of the current record. If the value is null then the record
-     * is considered to be new.
-     *
-     * @var mixed
-     */
-    public $id;
 
     /**
      * Once set, Model behaves like an entity and loading a different ID
@@ -841,8 +835,7 @@ class Model implements \IteratorAggregate
     {
         $this->assertHasIdField();
 
-//        return $this->get($this->id_field);
-        return $this->id;
+        return $this->get($this->id_field);
     }
 
     /**
@@ -854,16 +847,11 @@ class Model implements \IteratorAggregate
     {
         $this->assertHasIdField();
 
-//        if ($value === null) {
-//            return $this->setNull($this->id_field);
-//        } else {
-//            return $this->set($this->id_field, $value);
-//        }
-
-        $this->id = $value;
-        $this->set($this->id_field, $this->id);
-
-        return $this;
+        if ($value === null) {
+            return $this->setNull($this->id_field);
+        } else {
+            return $this->set($this->id_field, $value);
+        }
     }
 
     /**
@@ -1104,6 +1092,56 @@ class Model implements \IteratorAggregate
         $this->limit = [$count, $offset];
 
         return $this;
+    }
+
+    // }}}
+
+    // {{{ BC implementation of Model::id property using magic methods.
+
+    public function __isset(string $name): bool
+    {
+        if ($name === 'id') {
+            return $this->getId() !== null;
+        }
+
+        return isset($this->{$name});
+    }
+
+    /**
+     * @return mixed
+     */
+    public function &__get(string $name)
+    {
+        if ($name === 'id') {
+            $value = $this->getId();
+
+            return $value;
+        }
+
+        return $this->{$name};
+    }
+
+    /**
+     * @param mixed $value
+     */
+    public function __set(string $name, $value): void
+    {
+        if ($name === 'id') {
+            $this->setId($value);
+
+            return;
+        }
+
+        $this->{$name} = $value;
+    }
+
+    public function __unset(string $name): void
+    {
+        if ($name === 'id') {
+            throw new Exception('ID property can not be unset');
+        }
+
+        unset($this->{$name});
     }
 
     // }}}
@@ -1686,7 +1724,7 @@ class Model implements \IteratorAggregate
         $model->entityId = null;
         $this->_rawInsert($model, $row);
 
-        return $model->id;
+        return $this->id_field ? $model->id : null;
     }
 
     /**
