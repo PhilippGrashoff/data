@@ -700,6 +700,11 @@ class Model implements \IteratorAggregate
 
         $original_value = array_key_exists($field, $this->dirty) ? $this->dirty[$field] : $f->default;
 
+        // debug, supress not-present ID key
+        if ($field === $this->id_field) {
+            $this->data[$field] = null;
+        }
+
         $current_value = array_key_exists($field, $this->data) ? $this->data[$field] : $original_value;
 
         if (gettype($value) == gettype($current_value) && $value == $current_value) {
