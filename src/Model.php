@@ -1110,7 +1110,7 @@ class Model implements \IteratorAggregate
      */
     public function loaded(): bool
     {
-        return $this->id_field && $this->id !== null;
+        return $this->id_field && $this->getId() !== null;
     }
 
     /**
