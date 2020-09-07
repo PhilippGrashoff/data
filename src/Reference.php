@@ -84,6 +84,21 @@ class Reference
         $this->link = $link;
     }
 
+    protected function onHookToModel(Model $model, string $spot, \Closure $fx, array $args = [], int $priority = 5): int
+    {
+        $name = $this->short_name;
+
+        return $model->onHookDynamic(
+            $spot,
+            static function (Model $model) use ($name) {
+                return $model->getElement($name);
+            },
+            $fx,
+            $args,
+            $priority
+        );
+    }
+
     /**
      * Initialization.
      */
