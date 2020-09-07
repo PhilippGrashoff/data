@@ -76,11 +76,11 @@ class StGenericTransaction extends Model
         }
         $this->addField('amount', ['type' => 'money']);
 
-        $this->onHook(Model::HOOK_AFTER_LOAD, function (self $m) {
-            if (static::class !== $m->getClassName()) {
-                $cl = $m->getClassName();
-                $cl = new $cl($m->persistence);
-                $cl->load($m->id);
+        $this->onHookShort(Model::HOOK_AFTER_LOAD, function () {
+            if (static::class !== $this->getClassName()) {
+                $cl = $this->getClassName();
+                $cl = new $cl($this->persistence);
+                $cl->load($this->id);
 
                 $this->breakHook($cl);
             }
