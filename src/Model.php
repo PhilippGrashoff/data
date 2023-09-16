@@ -94,13 +94,13 @@ class Model implements \IteratorAggregate
     private $_entityId;
 
     /** @var array<string, true> */
-    private static $_modelOnlyProperties;
+    private static array $_modelOnlyProperties;
 
     /** @var array<mixed> The seed used by addField() method. */
     protected $_defaultSeedAddField = [Field::class];
 
     /** @var array<mixed> The seed used by addExpression() method. */
-    protected $_defaultSeedAddExpression = [CallbackField::class];
+    protected array $_defaultSeedAddExpression = [CallbackField::class];
 
     /** @var array<string, Field> */
     protected array $fields = [];
@@ -118,7 +118,7 @@ class Model implements \IteratorAggregate
     public $tableAlias;
 
     /** @var Persistence|null */
-    private $_persistence;
+    private ?Persistence $_persistence;
 
     /** @var array<string, mixed>|null Persistence store some custom information in here that may be useful for them. */
     public ?array $persistenceData = null;
